@@ -1,0 +1,78 @@
+import pelicula.*
+import sala.*
+import horario.*
+import cine.*
+
+program tp {
+	const avatar = new Pelicula(
+		titulo = "Avatar",
+		duracion = new Horario(horas = 2, minutos = 42), 
+		genero = "Ciencia Ficción", 
+		fecha =  new Date(day = 20, month = 11, year = 2023)
+	)
+	const toyStory1 = new Pelicula(
+		titulo = "Toy Story",
+		duracion = new Horario(horas = 1, minutos = 21),
+		genero = "Infantil",
+		fecha = new Date(day = 22, month = 11, year = 2023)
+	)
+	const toyStory2 = new Pelicula(
+		titulo = "Toy Story 2",
+		duracion = new Horario(horas = 1, minutos = 32),
+		genero = "Infantil",
+		fecha = new Date(day = 22, month = 12, year = 2023)
+	)
+	
+	
+	const sala1 = new Sala(
+		sistemaDeSonido = "Estándar",
+		capacidad = 100,
+		asientos = new Asientos(numerados = false, lugares = []),
+		peliculas = [
+			[avatar, new Horario(horas = 18, minutos = 0)],
+			[avatar, new Horario(horas = 21, minutos = 0)],
+			[toyStory1, new Horario(horas = 14, minutos = 0)]
+		]
+	)
+	
+	const sala2 = new Sala(
+		sistemaDeSonido = "Qwert 360 XWF",
+		capacidad = 100,
+		asientos = new Asientos(numerados = true, lugares = []),
+		peliculas = [
+			[avatar, new Horario(horas = 12, minutos = 0)],
+			[toyStory1, new Horario(horas = 18, minutos = 0)]
+		]
+	)
+	
+	const sala3 = new Sala(
+		sistemaDeSonido = "Qwert 360 XWF",
+		capacidad = 500,
+		asientos = new Asientos(numerados = true, lugares = []),
+		peliculas = [[toyStory2, new Horario(horas = 15, minutos = 0)]]
+	)
+	
+	const cine = new Cine(salas = [sala1, sala2, sala3])
+	
+	// Ej1
+	console.println("Ejercicio 1")
+	console.println(cine.lugaresDisponibles(avatar, sala1, new Horario(horas = 18, minutos = 0)))
+	console.println(cine.horariosDisponibles(avatar))
+	console.println("")
+	
+	// Ej2
+	console.println("Ejercicio 2")
+	console.println(cine.comprarEntrada(avatar, new Horario(horas = 12, minutos = 0)))
+	console.println(cine.comprarEntrada(avatar, new Horario(horas = 21, minutos = 0)))
+	console.println("")
+	
+	// Ej3
+	console.println("Ejercicio 3")
+	console.println(cine.costoEntrada(avatar, new Horario(horas = 12, minutos = 0)))
+	console.println("")
+	
+	// Ej4
+	console.println("Ejercicio 4")
+	console.println(cine.recaudacion(avatar))
+	console.println(cine.cartelera())
+}

@@ -1,0 +1,264 @@
+import horario.*
+import pelicula.*
+import sala.*
+import cine.*
+
+describe "Pruebas de la clase Horario" {
+	const h1 = new Horario(horas = 12, minutos = 0)
+	const h2 = new Horario(horas = 18, minutos = 0)
+	const h3 = new Horario(horas = 18, minutos = 0)
+
+	test "Comparación de igualdad" {
+		assert.that(h2 == h3)
+	}
+	
+	test "Comparación de desigualdad" {
+		assert.notThat(h1 == h2)
+	}
+}
+
+describe "Pruebas de la clase Pelicula" {
+	const p1 = new Pelicula(
+		titulo = "Pelicula corta 1",
+		duracion = new Horario(horas = 1, minutos = 0), 
+		genero = "Ciencia Ficción", 
+		fecha =  new Date(day = 20, month = 11, year = 2023)
+	)
+	const p2 = new Pelicula(
+		titulo = "Pelicula larga 1",
+		duracion = new Horario(horas = 3, minutos = 0), 
+		genero = "Ciencia Ficción", 
+		fecha =  new Date(day = 20, month = 11, year = 2023)
+	)
+	const p3 = new Pelicula(
+		titulo = "Pelicula corta 2",
+		duracion = new Horario(horas = 1, minutos = 29),
+		genero = "Infantil",
+		fecha = new Date(day = 22, month = 11, year = 2023)
+	)
+	const p4 = new Pelicula(
+		titulo = "Pelicula larga 2",
+		duracion = new Horario(horas = 1, minutos = 30),
+		genero = "Infantil",
+		fecha = new Date(day = 22, month = 11, year = 2023)
+	)
+	
+	test "Es película larga de ciencia ficción" {
+		assert.that(p2.esLarga())
+	}
+	
+	test "Es película corta de ciencia ficción" {
+		assert.notThat(p1.esLarga())
+	}
+	
+	test "Es película larga infantil" {
+		assert.that(p4.esLarga())
+	}
+	
+	test "Es película corta infantil" {
+		assert.notThat(p3.esLarga())
+	}
+}
+
+describe "Prueba de la clase Sala" {
+	const avatar = new Pelicula(
+		titulo = "Avatar",
+		duracion = new Horario(horas = 2, minutos = 42), 
+		genero = "Ciencia Ficción", 
+		fecha =  new Date(day = 20, month = 11, year = 2023)
+	)
+	const toyStory1 = new Pelicula(
+		titulo = "Toy Story",
+		duracion = new Horario(horas = 1, minutos = 21),
+		genero = "Infantil",
+		fecha = new Date(day = 22, month = 11, year = 2023)
+	)
+	const toyStory2 = new Pelicula(
+		titulo = "Toy Story 2",
+		duracion = new Horario(horas = 1, minutos = 32),
+		genero = "Infantil",
+		fecha = new Date(day = 22, month = 12, year = 2023)
+	)
+	const sala1 = new Sala(
+		sistemaDeSonido = "Estándar",
+		capacidad = 100,
+		asientos = new Asientos(numerados = false, lugares = []),
+		peliculas = [
+			[avatar, new Horario(horas = 18, minutos = 0)],
+			[avatar, new Horario(horas = 21, minutos = 0)],
+			[toyStory1, new Horario(horas = 14, minutos = 0)]
+		]
+	)
+	const sala2 = new Sala(
+		sistemaDeSonido = "Dolby super surround 8.12",
+		capacidad = 3,
+		asientos = new Asientos(numerados = true, lugares = []),
+		peliculas = [
+			[avatar, new Horario(horas = 12, minutos = 0)],
+			[toyStory2, new Horario(horas = 18, minutos = 0)]
+		]
+	)
+	const sala3 = new Sala(
+		sistemaDeSonido = "Qwert 360 XWF",
+		capacidad = 151,
+		asientos = new Asientos(numerados = true, lugares = []),
+		peliculas = [[avatar, new Horario(horas = 19, minutos = 0)]]
+	)
+	
+	test "Inicialmente todos los lugares estan disponibles" {
+		assert.equals(sala1.capacidad(), sala1.lugaresDisponibles())
+	}
+	test "Película en horario concreto está en la sala" {
+		assert.that(sala1.tienePelicula(avatar, new Horario(horas = 18, minutos = 0)))
+	}
+	test "Película en horario concreto NO está en la sala" {
+		assert.notThat(sala1.tienePelicula(avatar, new Horario(horas = 19, minutos = 0)))
+	}
+	test "Película está en la sala en cualquier horario" {
+		assert.that(sala1.tienePelicula(avatar))
+	}
+	test "Película NO está en la sala en cualquier horario" {
+		assert.notThat(sala1.tienePelicula(toyStory2))
+	}
+	test "Consulta de horarios de película válida" {
+		assert.equals(sala1.obtenerHorarios(avatar), 
+			[new Horario(horas = 18, minutos = 0), new Horario(horas = 21, minutos = 0)]
+		)
+	}
+	test "Consulta de horarios de película inválida" {
+		assert.throwsExceptionWithMessage(
+			"La película no está disponible en esta sala", 
+			{ sala1.obtenerHorarios(toyStory2) }
+		)
+	}
+	test "Comprar entrada aumenta los asientos ocupados" {
+		const antes = sala1.asientos().lugares().size()
+		sala1.comprarEntrada(avatar)
+		const despues = sala1.asientos().lugares().size()
+		assert.that(despues == antes + 1)
+	}
+	test "Comprar entrada con asiento numerado" {
+		assert.equals(sala2.comprarEntrada(avatar), "Asiento nro: 1")
+		assert.equals(sala2.comprarEntrada(avatar), "Asiento nro: 2")
+	}
+	test "Comprar entrada sin asiento numerado" {
+		assert.equals(sala1.comprarEntrada(avatar), "Entrada general")
+	}
+	test "Comprar entrada de película inválida" {
+		assert.throwsExceptionWithMessage(
+			"La película no está disponible en esta sala", 
+			{ sala1.comprarEntrada(toyStory2) }
+		)
+	}
+	test "Comprar entrada con asientos agotados" {
+		sala2.comprarEntrada(avatar)
+		sala2.comprarEntrada(avatar)
+		sala2.comprarEntrada(avatar)
+		assert.throwsExceptionWithMessage(
+			"No hay lugares disponibles", 
+			{ sala2.comprarEntrada(avatar) }
+		)
+	}
+	test "Costo de película en horario concreto" {
+		assert.equals(sala1.costo(avatar, new Horario(horas = 18, minutos = 0)), 3)
+		assert.equals(sala1.costo(toyStory1, new Horario(horas = 14, minutos = 0)), 2)
+		assert.equals(sala2.costo(avatar, new Horario(horas = 12, minutos = 0)), 3)
+		assert.equals(sala3.costo(avatar, new Horario(horas = 19, minutos = 0)), 3.6)
+	}
+	test "Sumatoria de costo de película en todos los horarios" {
+		assert.equals(sala1.costo(avatar), 6)
+	}
+}
+
+describe "Pruebas de la clase Cine" {
+	const avatar = new Pelicula(
+		titulo = "Avatar",
+		duracion = new Horario(horas = 2, minutos = 42), 
+		genero = "Ciencia Ficción", 
+		fecha =  new Date(day = 20, month = 11, year = 2023)
+	)
+	const toyStory1 = new Pelicula(
+		titulo = "Toy Story",
+		duracion = new Horario(horas = 1, minutos = 21),
+		genero = "Infantil",
+		fecha = new Date(day = 22, month = 11, year = 2023)
+	)
+	const toyStory2 = new Pelicula(
+		titulo = "Toy Story 2",
+		duracion = new Horario(horas = 1, minutos = 32),
+		genero = "Infantil",
+		fecha = new Date(day = 22, month = 12, year = 2023)
+	)
+	const sala1 = new Sala(
+		sistemaDeSonido = "Estándar",
+		capacidad = 100,
+		asientos = new Asientos(numerados = false, lugares = []),
+		peliculas = [
+			[avatar, new Horario(horas = 18, minutos = 0)],
+			[avatar, new Horario(horas = 21, minutos = 0)],
+			[toyStory1, new Horario(horas = 14, minutos = 0)]
+		]
+	)
+	const sala2 = new Sala(
+		sistemaDeSonido = "Qwert 360 XWF",
+		capacidad = 100,
+		asientos = new Asientos(numerados = true, lugares = []),
+		peliculas = [
+			[avatar, new Horario(horas = 12, minutos = 0)],
+			[toyStory1, new Horario(horas = 18, minutos = 0)]
+		]
+	)
+	const sala3 = new Sala(
+		sistemaDeSonido = "Qwert 360 XWF",
+		capacidad = 500,
+		asientos = new Asientos(numerados = true, lugares = []),
+		peliculas = [[toyStory2, new Horario(horas = 15, minutos = 0)]]
+	)
+	const cine = new Cine(salas = [sala1, sala2, sala3])
+	
+	test "Lugares disponibles para una película en una sala y horario concreto" {
+		assert.equals(
+			cine.lugaresDisponibles(
+				avatar, 
+				sala1, 
+				new Horario(horas = 18, minutos = 0)
+			), sala1.capacidad()
+		)
+	}
+	test "Horarios disponibles para una película en todas las salas" {
+		const expected = #{
+			new Horario(horas = 18, minutos = 0),
+			new Horario(horas = 21, minutos = 0),
+			new Horario(horas = 12, minutos = 0)
+		}
+		assert.equals(cine.horariosDisponibles(avatar), expected)
+	}
+	test "Comprar entrada" {
+		const antes = sala1.asientos().lugares().size()
+		cine.comprarEntrada(avatar, new Horario(horas = 18, minutos = 0))
+		const despues = sala1.asientos().lugares().size()
+		assert.that(antes == despues - 1)
+	}
+	test "Costo entrada" {
+		assert.equals(
+			cine.costoEntrada(avatar, new Horario(horas = 18, minutos = 0)),
+			sala1.costo(avatar, new Horario(horas = 18, minutos = 0))
+		)
+	}
+	test "Recaudado por película" {
+		assert.equals(
+			cine.recaudacion(avatar),
+			[
+				sala1.costo(avatar),
+				sala2.costo(avatar)
+			].sum()
+		)
+	}
+	test "Cartelera ordenada por recaudación" {
+		const ord = { l => 
+			cine.recaudacion(l.get(0)) > cine.recaudacion(l.get(1)) and
+			cine.recaudacion(l.get(1)) > cine.recaudacion(l.get(2))
+		}
+		assert.that(ord.apply(cine.cartelera()))
+	}
+}
