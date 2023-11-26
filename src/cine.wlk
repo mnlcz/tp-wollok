@@ -1,19 +1,16 @@
 class Cine {
 	const property salas
 	
-	method lugaresDisponibles(pelicula, sala, horario) {
+	method lugaresDisponibles(pelicula, sala) {
 		if (salas.contains(sala) and sala.tienePelicula(pelicula)) return sala.lugaresDisponibles()
-		else return 0
+		else throw new Exception(message = "Sala inválida")
 	}
 	
 	method horariosDisponibles(pelicula) {
-		const horarios = #{}
-		salas.forEach({ s => {
-			if (s.tienePelicula(pelicula)) {
-				s.obtenerHorarios(pelicula).forEach({ h => horarios.add(h) })
-			}
-		}.apply()})
-		return horarios
+		 return salas.filter({ s => s.tienePelicula(pelicula) })
+		 			 .map({ s => s.obtenerHorarios(pelicula) })
+		 			 .flatten()
+		 			 .asSet()
 	}
 	
 	// Por el enunciado se asume que la venta y disponibilidad es válida siempre
@@ -30,15 +27,13 @@ class Cine {
 		
 	method recaudacion(pelicula) =
 		salas.filter({ s => s.tienePelicula(pelicula) })
-			 .map({ s => s.costo(pelicula) })
+			 .map({ s => s.costo(pelicula) * s.asientos().ocupados() })
 			 .sum()
 			
 	method cartelera() {
-		const peliculas = []
-		salas.map({ s => s.peliculas() })
-			 .forEach({ x => peliculas.addAll(x) })
-		return peliculas.map({ x => x.get(0) })
-						.asSet()
-						.sortedBy({ a, b => self.recaudacion(a) > self.recaudacion(b) })
+		return salas.flatMap({ s => s.funciones() })
+					.map({ f => f.pelicula() })
+					.asSet()
+					.sortedBy({ a, b => self.recaudacion(a) > self.recaudacion(b) })
 	}
 }

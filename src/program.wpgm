@@ -2,6 +2,9 @@ import pelicula.*
 import sala.*
 import horario.*
 import cine.*
+import funcion.*
+import asientos.*
+import sonido.*
 
 program tp {
 	const avatar = new Pelicula(
@@ -23,40 +26,39 @@ program tp {
 		fecha = new Date(day = 22, month = 12, year = 2023)
 	)
 	
-	
 	const sala1 = new Sala(
-		sistemaDeSonido = "Estándar",
+		sistemaDeSonido = estandar,
 		capacidad = 100,
-		asientos = new Asientos(numerados = false, lugares = []),
-		peliculas = [
-			[avatar, new Horario(horas = 18, minutos = 0)],
-			[avatar, new Horario(horas = 21, minutos = 0)],
-			[toyStory1, new Horario(horas = 14, minutos = 0)]
+		asientos = new Asientos(),
+		funciones = [
+			new Funcion(pelicula = avatar, horario = new Horario(horas = 18, minutos = 0)),
+			new Funcion(pelicula = avatar, horario = new Horario(horas = 21, minutos = 0)),
+			new Funcion(pelicula = toyStory1, horario = new Horario(horas = 14, minutos = 0))
 		]
 	)
 	
 	const sala2 = new Sala(
-		sistemaDeSonido = "Qwert 360 XWF",
+		sistemaDeSonido = qwert,
 		capacidad = 100,
-		asientos = new Asientos(numerados = true, lugares = []),
-		peliculas = [
-			[avatar, new Horario(horas = 12, minutos = 0)],
-			[toyStory1, new Horario(horas = 18, minutos = 0)]
+		asientos = new AsientosNumerados(),
+		funciones = [
+			new Funcion(pelicula = avatar, horario = new Horario(horas = 12, minutos = 0)),
+			new Funcion(pelicula = toyStory1, horario = new Horario(horas = 18, minutos = 0))
 		]
 	)
 	
 	const sala3 = new Sala(
-		sistemaDeSonido = "Qwert 360 XWF",
+		sistemaDeSonido = qwert,
 		capacidad = 500,
-		asientos = new Asientos(numerados = true, lugares = []),
-		peliculas = [[toyStory2, new Horario(horas = 15, minutos = 0)]]
+		asientos = new AsientosNumerados(),
+		funciones = [new Funcion(pelicula = toyStory2, horario = new Horario(horas = 15, minutos = 0))]
 	)
 	
 	const cine = new Cine(salas = [sala1, sala2, sala3])
 	
 	// Ej1
 	console.println("Ejercicio 1")
-	console.println(cine.lugaresDisponibles(avatar, sala1, new Horario(horas = 18, minutos = 0)))
+	console.println(cine.lugaresDisponibles(avatar, sala1))
 	console.println(cine.horariosDisponibles(avatar))
 	console.println("")
 	
@@ -74,5 +76,7 @@ program tp {
 	// Ej4
 	console.println("Ejercicio 4")
 	console.println(cine.recaudacion(avatar))
+	console.println(cine.recaudacion(toyStory1))
+	console.println(cine.recaudacion(toyStory2))
 	console.println(cine.cartelera())
 }

@@ -2,6 +2,9 @@ import horario.*
 import pelicula.*
 import sala.*
 import cine.*
+import funcion.*
+import asientos.*
+import sonido.*
 
 describe "Pruebas de la clase Horario" {
 	const h1 = new Horario(horas = 12, minutos = 0)
@@ -80,29 +83,31 @@ describe "Prueba de la clase Sala" {
 		fecha = new Date(day = 22, month = 12, year = 2023)
 	)
 	const sala1 = new Sala(
-		sistemaDeSonido = "Estándar",
+		sistemaDeSonido = estandar,
 		capacidad = 100,
-		asientos = new Asientos(numerados = false, lugares = []),
-		peliculas = [
-			[avatar, new Horario(horas = 18, minutos = 0)],
-			[avatar, new Horario(horas = 21, minutos = 0)],
-			[toyStory1, new Horario(horas = 14, minutos = 0)]
+		asientos = new Asientos(),
+		funciones = [
+			new Funcion(pelicula = avatar, horario = new Horario(horas = 18, minutos = 0)),
+			new Funcion(pelicula = avatar, horario = new Horario(horas = 21, minutos = 0)),
+			new Funcion(pelicula = toyStory1, horario = new Horario(horas = 14, minutos = 0))
 		]
 	)
 	const sala2 = new Sala(
-		sistemaDeSonido = "Dolby super surround 8.12",
+		sistemaDeSonido = dolby,
 		capacidad = 3,
-		asientos = new Asientos(numerados = true, lugares = []),
-		peliculas = [
-			[avatar, new Horario(horas = 12, minutos = 0)],
-			[toyStory2, new Horario(horas = 18, minutos = 0)]
+		asientos = new AsientosNumerados(),
+		funciones = [
+			new Funcion(pelicula = avatar, horario = new Horario(horas = 12, minutos = 0)),
+			new Funcion(pelicula = toyStory2, horario = new Horario(horas = 18, minutos = 0))
 		]
 	)
 	const sala3 = new Sala(
-		sistemaDeSonido = "Qwert 360 XWF",
+		sistemaDeSonido = qwert,
 		capacidad = 151,
-		asientos = new Asientos(numerados = true, lugares = []),
-		peliculas = [[avatar, new Horario(horas = 19, minutos = 0)]]
+		asientos = new AsientosNumerados(),
+		funciones = [
+			new Funcion(pelicula = avatar, horario = new Horario(horas = 19, minutos = 0))
+		]
 	)
 	
 	test "Inicialmente todos los lugares estan disponibles" {
@@ -144,12 +149,6 @@ describe "Prueba de la clase Sala" {
 	test "Comprar entrada sin asiento numerado" {
 		assert.equals(sala1.comprarEntrada(avatar), "Entrada general")
 	}
-	test "Comprar entrada de película inválida" {
-		assert.throwsExceptionWithMessage(
-			"La película no está disponible en esta sala", 
-			{ sala1.comprarEntrada(toyStory2) }
-		)
-	}
 	test "Comprar entrada con asientos agotados" {
 		sala2.comprarEntrada(avatar)
 		sala2.comprarEntrada(avatar)
@@ -190,39 +189,38 @@ describe "Pruebas de la clase Cine" {
 		fecha = new Date(day = 22, month = 12, year = 2023)
 	)
 	const sala1 = new Sala(
-		sistemaDeSonido = "Estándar",
+		sistemaDeSonido = estandar,
 		capacidad = 100,
-		asientos = new Asientos(numerados = false, lugares = []),
-		peliculas = [
-			[avatar, new Horario(horas = 18, minutos = 0)],
-			[avatar, new Horario(horas = 21, minutos = 0)],
-			[toyStory1, new Horario(horas = 14, minutos = 0)]
+		asientos = new Asientos(),
+		funciones = [
+			new Funcion(pelicula = avatar, horario = new Horario(horas = 18, minutos = 0)),
+			new Funcion(pelicula = avatar, horario = new Horario(horas = 21, minutos = 0)),
+			new Funcion(pelicula = toyStory1, horario = new Horario(horas = 14, minutos = 0))
 		]
 	)
 	const sala2 = new Sala(
-		sistemaDeSonido = "Qwert 360 XWF",
+		sistemaDeSonido = qwert,
 		capacidad = 100,
-		asientos = new Asientos(numerados = true, lugares = []),
-		peliculas = [
-			[avatar, new Horario(horas = 12, minutos = 0)],
-			[toyStory1, new Horario(horas = 18, minutos = 0)]
+		asientos = new AsientosNumerados(),
+		funciones = [
+			new Funcion(pelicula = avatar, horario = new Horario(horas = 12, minutos = 0)),
+			new Funcion(pelicula = toyStory1, horario = new Horario(horas = 18, minutos = 0))
 		]
 	)
 	const sala3 = new Sala(
-		sistemaDeSonido = "Qwert 360 XWF",
+		sistemaDeSonido = qwert,
 		capacidad = 500,
-		asientos = new Asientos(numerados = true, lugares = []),
-		peliculas = [[toyStory2, new Horario(horas = 15, minutos = 0)]]
+		asientos = new AsientosNumerados(),
+		funciones = [
+			new Funcion(pelicula = toyStory2, horario = new Horario(horas = 15, minutos = 0))
+		]
 	)
 	const cine = new Cine(salas = [sala1, sala2, sala3])
 	
 	test "Lugares disponibles para una película en una sala y horario concreto" {
 		assert.equals(
-			cine.lugaresDisponibles(
-				avatar, 
-				sala1, 
-				new Horario(horas = 18, minutos = 0)
-			), sala1.capacidad()
+			cine.lugaresDisponibles(avatar, sala1), 
+			sala1.capacidad()
 		)
 	}
 	test "Horarios disponibles para una película en todas las salas" {
@@ -246,6 +244,8 @@ describe "Pruebas de la clase Cine" {
 		)
 	}
 	test "Recaudado por película" {
+		cine.comprarEntrada(avatar, new Horario(horas = 12, minutos = 0))
+		cine.comprarEntrada(avatar, new Horario(horas = 18, minutos = 0))
 		assert.equals(
 			cine.recaudacion(avatar),
 			[
@@ -255,6 +255,9 @@ describe "Pruebas de la clase Cine" {
 		)
 	}
 	test "Cartelera ordenada por recaudación" {
+		cine.comprarEntrada(avatar, new Horario(horas = 12, minutos = 0))
+		cine.comprarEntrada(avatar, new Horario(horas = 18, minutos = 0))
+		cine.comprarEntrada(toyStory1, new Horario(horas = 18, minutos = 0))
 		const ord = { l => 
 			cine.recaudacion(l.get(0)) > cine.recaudacion(l.get(1)) and
 			cine.recaudacion(l.get(1)) > cine.recaudacion(l.get(2))
