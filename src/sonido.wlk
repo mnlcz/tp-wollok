@@ -7,7 +7,7 @@ object dolby {
 object qwert {
 	const property nombre = "Qwert 360 XWF"
 	
-	method costo(sala, pelicula) = pelicula.titulo().replace(" ", "").size() * 0.1
+	method costo(sala, pelicula) = pelicula.tamanioTitulo() * 0.1
 }
 
 object estandar {

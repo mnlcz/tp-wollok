@@ -85,33 +85,33 @@ describe "Prueba de la clase Sala" {
 	const sala1 = new Sala(
 		sistemaDeSonido = estandar,
 		capacidad = 100,
-		asientos = new Asientos(),
 		funciones = [
-			new Funcion(pelicula = avatar, horario = new Horario(horas = 18, minutos = 0)),
-			new Funcion(pelicula = avatar, horario = new Horario(horas = 21, minutos = 0)),
-			new Funcion(pelicula = toyStory1, horario = new Horario(horas = 14, minutos = 0))
+			new Funcion(asientos = new Asientos(), pelicula = avatar, horario = new Horario(horas = 18, minutos = 0)),
+			new Funcion(asientos = new Asientos(), pelicula = avatar, horario = new Horario(horas = 21, minutos = 0)),
+			new Funcion(asientos = new Asientos(), pelicula = toyStory1, horario = new Horario(horas = 14, minutos = 0))
 		]
 	)
 	const sala2 = new Sala(
 		sistemaDeSonido = dolby,
 		capacidad = 3,
-		asientos = new AsientosNumerados(),
 		funciones = [
-			new Funcion(pelicula = avatar, horario = new Horario(horas = 12, minutos = 0)),
-			new Funcion(pelicula = toyStory2, horario = new Horario(horas = 18, minutos = 0))
+			new Funcion(asientos = new AsientosNumerados(), pelicula = avatar, horario = new Horario(horas = 12, minutos = 0)),
+			new Funcion(asientos = new AsientosNumerados(), pelicula = toyStory2, horario = new Horario(horas = 18, minutos = 0))
 		]
 	)
 	const sala3 = new Sala(
 		sistemaDeSonido = qwert,
 		capacidad = 151,
-		asientos = new AsientosNumerados(),
 		funciones = [
-			new Funcion(pelicula = avatar, horario = new Horario(horas = 19, minutos = 0))
+			new Funcion(asientos = new AsientosNumerados(), pelicula = avatar, horario = new Horario(horas = 19, minutos = 0))
 		]
 	)
-	
+	test "Funcion está en la sala" {
+		assert.equals(avatar, sala1.buscarFuncion(avatar, new Horario(horas = 18, minutos = 0)).pelicula())
+		assert.equals(new Horario(horas = 18, minutos = 0), sala1.buscarFuncion(avatar, new Horario(horas = 18, minutos = 0)).horario())
+	}
 	test "Inicialmente todos los lugares estan disponibles" {
-		assert.equals(sala1.capacidad(), sala1.lugaresDisponibles())
+		assert.equals(sala1.capacidad(), sala1.lugaresDisponibles(avatar, new Horario(horas = 18, minutos = 0)))
 	}
 	test "Película en horario concreto está en la sala" {
 		assert.that(sala1.tienePelicula(avatar, new Horario(horas = 18, minutos = 0)))
@@ -131,38 +131,35 @@ describe "Prueba de la clase Sala" {
 		)
 	}
 	test "Consulta de horarios de película inválida" {
-		assert.throwsExceptionWithMessage(
-			"La película no está disponible en esta sala", 
-			{ sala1.obtenerHorarios(toyStory2) }
-		)
+		assert.equals(sala1.obtenerHorarios(toyStory2), [])
 	}
 	test "Comprar entrada aumenta los asientos ocupados" {
-		const antes = sala1.asientos().lugares().size()
-		sala1.comprarEntrada(avatar)
-		const despues = sala1.asientos().lugares().size()
+		const antes = sala1.buscarFuncion(avatar, new Horario(horas = 18, minutos = 0)).asientos().ocupados()
+		sala1.comprarEntrada(avatar, new Horario(horas = 18, minutos = 0))
+		const despues = sala1.buscarFuncion(avatar, new Horario(horas = 18, minutos = 0)).asientos().ocupados()
 		assert.that(despues == antes + 1)
 	}
 	test "Comprar entrada con asiento numerado" {
-		assert.equals(sala2.comprarEntrada(avatar), "Asiento nro: 1")
-		assert.equals(sala2.comprarEntrada(avatar), "Asiento nro: 2")
+		assert.equals(sala2.comprarEntrada(avatar, new Horario(horas = 12, minutos = 0)), "Asiento nro: 1")
+		assert.equals(sala2.comprarEntrada(avatar, new Horario(horas = 12, minutos = 0)), "Asiento nro: 2")
 	}
 	test "Comprar entrada sin asiento numerado" {
-		assert.equals(sala1.comprarEntrada(avatar), "Entrada general")
+		assert.equals(sala1.comprarEntrada(avatar, new Horario(horas = 18, minutos = 0)), "Entrada general")
 	}
 	test "Comprar entrada con asientos agotados" {
-		sala2.comprarEntrada(avatar)
-		sala2.comprarEntrada(avatar)
-		sala2.comprarEntrada(avatar)
+		sala2.comprarEntrada(avatar, new Horario(horas = 12, minutos = 0))
+		sala2.comprarEntrada(avatar, new Horario(horas = 12, minutos = 0))
+		sala2.comprarEntrada(avatar, new Horario(horas = 12, minutos = 0))
 		assert.throwsExceptionWithMessage(
 			"No hay lugares disponibles", 
-			{ sala2.comprarEntrada(avatar) }
+			{ sala2.comprarEntrada(avatar, new Horario(horas = 12, minutos = 0)) }
 		)
 	}
 	test "Costo de película en horario concreto" {
 		assert.equals(sala1.costo(avatar, new Horario(horas = 18, minutos = 0)), 3)
 		assert.equals(sala1.costo(toyStory1, new Horario(horas = 14, minutos = 0)), 2)
-		assert.equals(sala2.costo(avatar, new Horario(horas = 12, minutos = 0)), 3)
-		assert.equals(sala3.costo(avatar, new Horario(horas = 19, minutos = 0)), 3.6)
+		assert.equals(sala2.costo(avatar, new Horario(horas = 12, minutos = 0)), 6)
+		assert.equals(sala3.costo(avatar, new Horario(horas = 19, minutos = 0)), 6.6)
 	}
 	test "Sumatoria de costo de película en todos los horarios" {
 		assert.equals(sala1.costo(avatar), 6)
@@ -191,35 +188,32 @@ describe "Pruebas de la clase Cine" {
 	const sala1 = new Sala(
 		sistemaDeSonido = estandar,
 		capacidad = 100,
-		asientos = new Asientos(),
 		funciones = [
-			new Funcion(pelicula = avatar, horario = new Horario(horas = 18, minutos = 0)),
-			new Funcion(pelicula = avatar, horario = new Horario(horas = 21, minutos = 0)),
-			new Funcion(pelicula = toyStory1, horario = new Horario(horas = 14, minutos = 0))
+			new Funcion(asientos = new Asientos(), pelicula = avatar, horario = new Horario(horas = 18, minutos = 0)),
+			new Funcion(asientos = new Asientos(), pelicula = avatar, horario = new Horario(horas = 21, minutos = 0)),
+			new Funcion(asientos = new Asientos(), pelicula = toyStory1, horario = new Horario(horas = 14, minutos = 0))
 		]
 	)
 	const sala2 = new Sala(
 		sistemaDeSonido = qwert,
 		capacidad = 100,
-		asientos = new AsientosNumerados(),
 		funciones = [
-			new Funcion(pelicula = avatar, horario = new Horario(horas = 12, minutos = 0)),
-			new Funcion(pelicula = toyStory1, horario = new Horario(horas = 18, minutos = 0))
+			new Funcion(asientos = new AsientosNumerados(), pelicula = avatar, horario = new Horario(horas = 12, minutos = 0)),
+			new Funcion(asientos = new AsientosNumerados(), pelicula = toyStory1, horario = new Horario(horas = 18, minutos = 0))
 		]
 	)
 	const sala3 = new Sala(
 		sistemaDeSonido = qwert,
 		capacidad = 500,
-		asientos = new AsientosNumerados(),
 		funciones = [
-			new Funcion(pelicula = toyStory2, horario = new Horario(horas = 15, minutos = 0))
+			new Funcion(asientos = new AsientosNumerados(), pelicula = toyStory2, horario = new Horario(horas = 15, minutos = 0))
 		]
 	)
 	const cine = new Cine(salas = [sala1, sala2, sala3])
 	
 	test "Lugares disponibles para una película en una sala y horario concreto" {
 		assert.equals(
-			cine.lugaresDisponibles(avatar, sala1), 
+			cine.lugaresDisponibles(avatar, sala1, new Horario(horas = 18, minutos = 0)), 
 			sala1.capacidad()
 		)
 	}
@@ -232,9 +226,9 @@ describe "Pruebas de la clase Cine" {
 		assert.equals(cine.horariosDisponibles(avatar), expected)
 	}
 	test "Comprar entrada" {
-		const antes = sala1.asientos().lugares().size()
+		const antes = sala1.buscarFuncion(avatar, new Horario(horas = 18, minutos = 0)).asientos().ocupados()
 		cine.comprarEntrada(avatar, new Horario(horas = 18, minutos = 0))
-		const despues = sala1.asientos().lugares().size()
+		const despues = sala1.buscarFuncion(avatar, new Horario(horas = 18, minutos = 0)).asientos().ocupados()
 		assert.that(antes == despues - 1)
 	}
 	test "Costo entrada" {

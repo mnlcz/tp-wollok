@@ -29,36 +29,35 @@ program tp {
 	const sala1 = new Sala(
 		sistemaDeSonido = estandar,
 		capacidad = 100,
-		asientos = new Asientos(),
 		funciones = [
-			new Funcion(pelicula = avatar, horario = new Horario(horas = 18, minutos = 0)),
-			new Funcion(pelicula = avatar, horario = new Horario(horas = 21, minutos = 0)),
-			new Funcion(pelicula = toyStory1, horario = new Horario(horas = 14, minutos = 0))
+			new Funcion(asientos = new Asientos(), pelicula = avatar, horario = new Horario(horas = 18, minutos = 0)),
+			new Funcion(asientos = new Asientos(), pelicula = avatar, horario = new Horario(horas = 21, minutos = 0)),
+			new Funcion(asientos = new Asientos(), pelicula = toyStory1, horario = new Horario(horas = 14, minutos = 0))
 		]
 	)
 	
 	const sala2 = new Sala(
 		sistemaDeSonido = qwert,
 		capacidad = 100,
-		asientos = new AsientosNumerados(),
 		funciones = [
-			new Funcion(pelicula = avatar, horario = new Horario(horas = 12, minutos = 0)),
-			new Funcion(pelicula = toyStory1, horario = new Horario(horas = 18, minutos = 0))
+			new Funcion(asientos = new AsientosNumerados(), pelicula = avatar, horario = new Horario(horas = 12, minutos = 0)),
+			new Funcion(asientos = new AsientosNumerados(), pelicula = toyStory1, horario = new Horario(horas = 18, minutos = 0))
 		]
 	)
 	
 	const sala3 = new Sala(
 		sistemaDeSonido = qwert,
 		capacidad = 500,
-		asientos = new AsientosNumerados(),
-		funciones = [new Funcion(pelicula = toyStory2, horario = new Horario(horas = 15, minutos = 0))]
+		funciones = [
+			new Funcion(asientos = new AsientosNumerados(), pelicula = toyStory2, horario = new Horario(horas = 15, minutos = 0))
+		]
 	)
 	
 	const cine = new Cine(salas = [sala1, sala2, sala3])
 	
 	// Ej1
 	console.println("Ejercicio 1")
-	console.println(cine.lugaresDisponibles(avatar, sala1))
+	console.println(cine.lugaresDisponibles(avatar, sala1, new Horario(horas = 18, minutos = 0)))
 	console.println(cine.horariosDisponibles(avatar))
 	console.println("")
 	

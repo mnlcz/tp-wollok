@@ -11,4 +11,8 @@ class Pelicula {
 	}
 	
 	override method toString() = titulo
+	
+	method costo() = if (self.esLarga()) 3 else 2
+	
+	method tamanioTitulo() = self.titulo().replace(" ", "").size()
 }
